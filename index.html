@@ -30,7 +30,7 @@
         <input type="text" id="name" value="ditto" placeholder="Pon el nombre del pokemon" />
         <img id="picture" src="" alt="foto de un pokemon" />
         <br/>
-        <div id="species">...</div>
+        <div id="habitat">...</div>
         <button id="queryPromise">Buscar pokemon usando promesas </button>
         <button id="queryAsync">Buscar pokemon usando Async/Await </button>
     </div>
@@ -44,24 +44,39 @@
         let name = document.getElementById("name").value
         fetch("https://pokeapi.co/api/v2/pokemon/" + name)
             .then(response => response.json())
-            .then(pokemon => document.getElementById("picture").src = pokemon.sprites.front_default)
+            .then(pokemon => {
+                document.getElementById("picture").src = pokemon.sprites.front_default
+                return fetch(pokemon.species.url)
+            })
+            .then(response => response.json())
+            .then(specie => document.getElementById('habitat').innerHTML=specie.habitat.name)
             .catch(error => alert('Se ha producido un error'))
     }
     // Async/await
     async function setPokemonPictureAsyncAwait(){
         document.getElementById("picture").style.display = "unset"
         let name = document.getElementById("name").value
+        let pokemon
         try{
             const response = await fetch("https://pokeapi.co/api/v2/pokemon/" + name)
-            const pokemon = await response.json()
+            pokemon = await response.json()
             document.getElementById("picture").src = pokemon.sprites.front_default
+        
+        
         }catch(error){
             alert('Se ha producido un error')
+        }
+
+        try{
+            const response2 = await fetch(pokemon.species.url)
+            const specie = await response2.json()
+            document.getElementById('habitat').innerHTML=specie.habitat.name
+        }catch(error){
+            document.getElementById('habitat').innerHTML='sin habitat'
         }
     }
     document.getElementById("queryPromise").addEventListener("click", setPokemonPicturePromise)
     document.getElementById("queryAsync").addEventListener("click", setPokemonPictureAsyncAwait)
-
 </script>
 
 </html>
